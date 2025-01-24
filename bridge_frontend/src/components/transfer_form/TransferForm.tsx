@@ -93,6 +93,9 @@ export default function TransferForm({ ethAddress, suiAddress,suiBalance, ethBal
         signature = await signer.signMessage(message);
       }
 
+      console.log('Signature:', signature);
+      console.log('Message:', message);
+
       const body = {
         ...baseBody,
         message,
@@ -100,7 +103,7 @@ export default function TransferForm({ ethAddress, suiAddress,suiBalance, ethBal
       };
 
       console.log('Sending request to:', endpoint);
-      console.log('Request body:', body);
+      console.log('Request body:', JSON.stringify(body, null, 2));
 
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -111,7 +114,8 @@ export default function TransferForm({ ethAddress, suiAddress,suiBalance, ethBal
       });
 
       const result = await response.json();
-      console.log('Response:', result);
+      console.log('Raw response:', response);
+      console.log('Response data:', result);
 
       if (!response.ok) {
         console.error('Server error details:', result);
@@ -123,7 +127,8 @@ export default function TransferForm({ ethAddress, suiAddress,suiBalance, ethBal
       setAmount('');
     } catch (error: any) {
       console.error('Full error details:', error);
-      let errorMessage = 'Transfer failed';
+      console.error('Error stack:', error.stack);
+      let errorMessage = error.message || 'Transfer failed';
       
       if (error.message === 'Failed to fetch') {
         errorMessage = 'Cannot connect to bridge server. Please ensure the server is running.';
