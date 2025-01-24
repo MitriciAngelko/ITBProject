@@ -62,8 +62,8 @@ export default function TransferForm({ ethAddress, suiAddress,suiBalance, ethBal
       }
 
       const endpoint = transferDirection === 'SUI_TO_ETH' 
-        ? 'http://localhost:3000/api/bridge/sui-to-eth'
-        : 'http://localhost:3000/api/bridge/eth-to-sui';
+        ? 'http://localhost:3001/api/bridge/sui-to-eth'
+        : 'http://localhost:3001/api/bridge/eth-to-sui';
 
       const baseBody = transferDirection === 'SUI_TO_ETH'
         ? {
@@ -123,7 +123,13 @@ export default function TransferForm({ ethAddress, suiAddress,suiBalance, ethBal
       setAmount('');
     } catch (error: any) {
       console.error('Full error details:', error);
-      setStatusMessage(error.message || 'Transfer failed');
+      let errorMessage = 'Transfer failed';
+      
+      if (error.message === 'Failed to fetch') {
+        errorMessage = 'Cannot connect to bridge server. Please ensure the server is running.';
+      }
+      
+      setStatusMessage(errorMessage);
       setIsError(true);
     } finally {
       setIsLoading(false);
@@ -134,24 +140,14 @@ export default function TransferForm({ ethAddress, suiAddress,suiBalance, ethBal
     <div className="transfer-form-container">
       <h2>Transfer MTR</h2>
       <div className="transfer-direction">
-        <button
-          className={transferDirection === 'SUI_TO_ETH' ? 'active' : ''}
-          onClick={() => {
-            setTransferDirection('SUI_TO_ETH');
-            setStatusMessage(null);
-          }}
+        <select 
+          className="direction-select"
+          value={transferDirection}
+          onChange={(e) => setTransferDirection(e.target.value as 'SUI_TO_ETH' | 'ETH_TO_SUI')}
         >
-          SUI MTR to ETH
-        </button>
-        <button
-          className={transferDirection === 'ETH_TO_SUI' ? 'active' : ''}
-          onClick={() => {
-            setTransferDirection('ETH_TO_SUI');
-            setStatusMessage(null);
-          }}
-        >
-          ETH MTR to SUI
-        </button>
+          <option value="SUI_TO_ETH">SUI MTR → ETH MTR</option>
+          <option value="ETH_TO_SUI">ETH MTR → SUI MTR</option>
+        </select>
       </div>
       <input
         className="amount-input"

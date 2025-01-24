@@ -22,17 +22,30 @@ function App() {
   const [ethBalance, setBalanceEth] = useState(0);
 
   return (
-    <div className="app-container">
-      <QueryClientProvider client={queryClient}>
-        <SuiClientProvider networks={networkConfig} defaultNetwork="devnet">
-          <WalletProvider theme={darkTheme}>
-              <SuiWallet onAddressChange={setSuiAddress} onBalanceChange={setBalanceSui}/>
-              <TransferForm ethAddress={ethAddress} suiAddress={suiAddress} suiBalance={suiBalance} ethBalance={ethBalance}/>
-              <ETHWallet onAddressChange={setEthAddress} onBalanceChange={setBalanceEth}/>
-          </WalletProvider>
-        </SuiClientProvider>
-      </QueryClientProvider>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <SuiClientProvider networks={networkConfig} defaultNetwork="devnet">
+        <WalletProvider theme={darkTheme}>
+          <div className="app-container">
+            <div className="wallets-container">
+              <div className="wallet-wrapper">
+                <SuiWallet onAddressChange={setSuiAddress} onBalanceChange={setBalanceSui}/>
+              </div>
+              <div className="wallet-wrapper">
+                <ETHWallet onAddressChange={setEthAddress} onBalanceChange={setBalanceEth}/>
+              </div>
+            </div>
+            <div className="transfer-container">
+              <TransferForm 
+                ethAddress={ethAddress} 
+                suiAddress={suiAddress} 
+                suiBalance={suiBalance} 
+                ethBalance={ethBalance}
+              />
+            </div>
+          </div>
+        </WalletProvider>
+      </SuiClientProvider>
+    </QueryClientProvider>
   );
 }
 

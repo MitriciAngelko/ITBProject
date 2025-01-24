@@ -32,21 +32,20 @@ function SuiWallet({ onAddressChange, onBalanceChange }: SuiWalletProps): JSX.El
 
   const fetchBalance = async (address: string) => {
     try {
-      const balanceResponse: CoinBalance = await suiClient.getBalance({
+      const { totalBalance }: CoinBalance = await suiClient.getBalance({
         owner: address,
-        coinType: '0xd5514bfc9831a3ebf3a72ac55de5abf451eb43883a790fd503e5f9c643bb07cc::mtr_coin::MTR_COIN',
+        coinType: '0x2::sui::SUI'
       });
       
-      console.log('Address: ', address);
-      console.log('Balance Response: ', balanceResponse);
+      const formattedBalance = formatBalance(totalBalance);
+      setBalance(formattedBalance);
+      onBalanceChange(formattedBalance);
       
-      const totalBalance = formatBalance(balanceResponse.totalBalance);
-      
-      console.log('Total Balance: ', totalBalance);
-      onBalanceChange(totalBalance);
-      setBalance(totalBalance);
+      console.log('SUI Balance fetched:', formattedBalance);
     } catch (error) {
-      console.error('Error fetching balance:', error);
+      console.error('Error fetching SUI balance:', error);
+      setBalance(0);
+      onBalanceChange(0);
     }
   };
 
@@ -57,10 +56,11 @@ function SuiWallet({ onAddressChange, onBalanceChange }: SuiWalletProps): JSX.El
   }, [selectedAddress]);
 
   useEffect(() => {
-    if (currentAccount) {
+    if (currentAccount?.address) {
       setSelectedAddress(currentAccount.address);
+      fetchBalance(currentAccount.address);
     }
-  }, [currentAccount]);
+  }, [currentAccount?.address]);
 
   const handleCopyAddress = () => {
     if (selectedAddress) {
@@ -69,15 +69,10 @@ function SuiWallet({ onAddressChange, onBalanceChange }: SuiWalletProps): JSX.El
     }
   };
 
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
     if (selectedAddress) {
-      setIsRefreshing(true);
-      fetchBalance(selectedAddress);
+      await fetchBalance(selectedAddress);
     }
-
-    setTimeout(() => {
-      setIsRefreshing(false);
-    }, 1000);
   };
 
   return (
@@ -126,7 +121,6 @@ function SuiWallet({ onAddressChange, onBalanceChange }: SuiWalletProps): JSX.El
               className="address-dropdown"
               value={selectedAddress || ''}
               onChange={(e) => setSelectedAddress(e.target.value)}
-              style={{ marginRight: '10px' }}
             >
               {accounts.map((account) => (
                 <option key={account.address} value={account.address}>
@@ -134,60 +128,11 @@ function SuiWallet({ onAddressChange, onBalanceChange }: SuiWalletProps): JSX.El
                 </option>
               ))}
             </select>
-            <button
-              onClick={handleCopyAddress}
-              style={{
-                padding: '8px 16px',
-                fontSize: '12px',
-                fontWeight: 500,
-                color: '#f3f3f5',
-                backgroundColor: '#17252A',
-                borderRadius: '8px',
-                border: '1px solid #17252A',
-                boxShadow: '0px 4px 12px rgba(22, 61, 109, 0.1)',
-                cursor: 'pointer',
-              }}
-            >
-              Copy
-            </button>
           </div>
           <div className="balance-display">
             BALANCE: {balance.toFixed(6)} MTR
-            <button
-              onClick={handleRefresh}
-              className={`refresh-button ${isRefreshing ? 'refreshing' : ''}`}
-              style={{
-                marginLeft: '10px',
-                padding: '5px 10px',
-                fontSize: '14px',
-                fontWeight: 500,
-                color: '#f3f3f5',
-                backgroundColor: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="refresh-icon"
-                style={{
-                  width: '20px',
-                  height: '20px',
-                  animation: isRefreshing ? 'spin 1s linear infinite' : 'none',
-                }}
-              >
-                <path d="M23 4v6h-6"></path>
-                <path d="M1 20v-6h6"></path>
-                <path d="M3.51 9a9 9 0 0114.89-3.36L23 10M1 14l4.6 4.6A9 9 0 0020.49 15"></path>
-              </svg>
+            <button onClick={handleRefresh} style={{ marginLeft: '10px' }}>
+              Refresh
             </button>
           </div>
         </>

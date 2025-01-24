@@ -198,8 +198,7 @@ const ETHWallet = ({ onAddressChange, onBalanceChange}: ETHWalletProps) => {
               value={selectedAddress}
               onChange={(e) => handleAddressChange(e.target.value)}
               style={{
-                width: '100%', 
-                marginRight: '10px',
+                width: '100%',
                 padding: '8px',
                 border: '1px solid #123157',
                 borderRadius: '8px',
@@ -212,62 +211,10 @@ const ETHWallet = ({ onAddressChange, onBalanceChange}: ETHWalletProps) => {
                 </option>
               ))}
             </select>
-            <button
-              className="copy-button"
-              onClick={copyAddress}
-              style={{
-                padding: '8px 16px',
-                fontSize: '12px',
-                fontWeight: 500,
-                color: '#f3f3f5',
-                backgroundColor: '#17252A',
-                borderRadius: '8px',
-                border: '1px solid #17252A',
-                boxShadow: '0px 4px 12px rgba(22, 61, 109, 0.1)',
-                cursor: 'pointer',
-              }}
-            >
-              Copy
-            </button>
           </div>
   
           <div className="balance-display" style={{ display: 'flex', alignItems: 'center' }}>
-            <span style={{ marginRight: '10px' }}>BALANCE: {tokenBalance || '0.000'} MTR</span>
-            <button
-              onClick={handleRefresh}
-              className={`refresh-button ${isRefreshing ? 'refreshing' : ''}`}
-              style={{
-                padding: '5px 10px',
-                fontSize: '14px',
-                fontWeight: 500,
-                color: '#f3f3f5',
-                backgroundColor: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="refresh-icon"
-                style={{
-                  width: '20px',
-                  height: '20px',
-                  animation: isRefreshing ? 'spin 1s linear infinite' : 'none',
-                }}
-              >
-                <path d="M23 4v6h-6"></path>
-                <path d="M1 20v-6h6"></path>
-                <path d="M3.51 9a9 9 0 0114.89-3.36L23 10M1 14l4.6 4.6A9 9 0 0020.49 15"></path>
-              </svg>
-            </button>
+            <span>BALANCE: {tokenBalance || '0.000'} MTR</span>
           </div>
         </>
       )}
