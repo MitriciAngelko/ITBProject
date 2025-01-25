@@ -1,5 +1,6 @@
-const { ethers } = require("ethers");
-require("dotenv").config();
+import { ethers } from 'ethers';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const ETH_RPC_URL = "http://127.0.0.1:8545";
 const ETH_PRIVATE_KEY = process.env.ETH_PRIVATE_KEY;
@@ -66,4 +67,4 @@ const burn = async (address, amount) => {
     return tx.hash;
 };
 
-module.exports = { mint, burn };
+export { mint, burn };

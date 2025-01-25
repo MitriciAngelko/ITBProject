@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSignPersonalMessage, useCurrentAccount } from '@mysten/dapp-kit';
 import { ethers } from 'ethers';
+import { toB64 } from '@mysten/sui.js/utils';
 
 type TransferFormProps = {
   ethAddress: string;
@@ -81,11 +82,29 @@ export default function TransferForm({ ethAddress, suiAddress,suiBalance, ethBal
       let signature;
 
       if (transferDirection === 'SUI_TO_ETH') {
-        // sign with Sui
         if (!currentAccount) throw new Error('Sui wallet not connected');
-        signature = await signPersonalMessage({
-          message: new TextEncoder().encode(message)
+        
+        const messageBytes = new TextEncoder().encode(message);
+        const messageB64 = toB64(messageBytes);
+        
+        const signatureResponse = await signPersonalMessage({
+          message: messageBytes
         });
+        
+        if (!signatureResponse || !signatureResponse.signature) {
+          throw new Error('Failed to get signature from wallet');
+        }
+        
+        signature = {
+          message: messageB64,
+          signature: signatureResponse.signature,
+          publicKey: currentAccount.publicKey
+        };
+        
+        console.log("Current account:", currentAccount);
+        console.log("Message to sign:", message);
+        console.log("Message bytes:", messageBytes);
+        console.log("Signature response:", signatureResponse);
       } else {
         // sign with Ethereum
         const provider = new ethers.BrowserProvider((window as any).ethereum);
@@ -93,8 +112,7 @@ export default function TransferForm({ ethAddress, suiAddress,suiBalance, ethBal
         signature = await signer.signMessage(message);
       }
 
-      console.log('Signature:', signature);
-      console.log('Message:', message);
+      console.log('Final signature object:', signature);
 
       const body = {
         ...baseBody,
@@ -109,6 +127,7 @@ export default function TransferForm({ ethAddress, suiAddress,suiBalance, ethBal
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-api-key': 'xV0OjDXlyHXmf1SC9z6ZRbR6ih0YVuhI'
         },
         body: JSON.stringify(body),
       });

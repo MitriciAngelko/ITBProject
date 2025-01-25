@@ -1,5 +1,5 @@
-const express = require("express");
-const ethService = require("../services/ethService");
+import express from 'express';
+import * as ethService from '../services/ethService.js';
 
 const router = express.Router();
 
@@ -25,4 +25,4 @@ router.post("/burn", async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

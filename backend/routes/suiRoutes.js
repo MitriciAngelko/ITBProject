@@ -1,5 +1,5 @@
-const express = require("express");
-const suiService = require("../services/suiService");
+import express from 'express';
+import * as suiService from '../services/suiService.js';
 
 const router = express.Router();
 
@@ -25,4 +25,4 @@ router.post("/burn", async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

@@ -1,17 +1,19 @@
-const express = require("express");
-const cors = require("cors");
-const ethRoutes = require("./routes/ethRoutes");
-const suiRoutes = require("./routes/suiRoutes");
-const bridgeRoutes = require("./routes/bridgeRoutes");
+import express from 'express';
+import cors from 'cors';
+import ethRoutes from './routes/ethRoutes.js';
+import suiRoutes from './routes/suiRoutes.js';
+import bridgeRoutes from './routes/bridgeRoutes.js';
+import dotenv from 'dotenv';
 
-require("dotenv").config();
+dotenv.config();
 
 const app = express();
 
 const corsOptions = {
   origin: ['http://localhost:5173', 'http://localhost:5174'],
-  methods: ['POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'x-api-key'], 
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'x-api-key'],
+  credentials: true
 };
 
 app.use(cors(corsOptions));

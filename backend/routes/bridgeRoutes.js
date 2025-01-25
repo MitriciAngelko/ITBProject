@@ -1,31 +1,41 @@
-const express = require("express");
-const { ethers } = require("ethers");
-const { verifyPersonalMessageSignature} = require("@mysten/sui/verify");
-const ethService = require("../services/ethService");
-const suiService = require("../services/suiService");
+import express from 'express';
+import { ethers } from 'ethers';
+import { verifyPersonalMessage } from '@mysten/sui.js/verify';
+import * as ethService from '../services/ethService.js';
+import * as suiService from '../services/suiService.js';
+import { fromB64, toB64 } from '@mysten/sui.js/utils';
 
 const router = express.Router();
 
 async function verifySignature(senderAddress, message, signature, isEthereum) {
     try {
-      if (isEthereum) {
-        const recoveredAddress = ethers.verifyMessage(message, signature);
-        console.log("Verified Ethereum address:", recoveredAddress.toLowerCase() === senderAddress.toLowerCase());
-        return recoveredAddress.toLowerCase() === senderAddress.toLowerCase();
-      } else {
-        const messageBytes = new TextEncoder().encode(message);
-        
-        const publicKey = await verifyPersonalMessageSignature(
-           messageBytes,
-           signature.signature,
-          { address: senderAddress }
-        );
-  
-        return publicKey.toSuiAddress() === senderAddress;
-      }
+        if (isEthereum) {
+            const recoveredAddress = ethers.verifyMessage(message, signature);
+            return recoveredAddress.toLowerCase() === senderAddress.toLowerCase();
+        } else {
+            // Pentru Sui, signature ar trebui să conțină publicKey și signature
+            if (!signature || !signature.signature || !signature.publicKey) {
+                console.error("Invalid Sui signature format:", signature);
+                return false;
+            }
+
+            try {
+                const isValid = await verifyPersonalMessage({
+                    message: fromB64(signature.message), // Decodează mesajul din base64
+                    signature: signature.signature,
+                    publicKey: signature.publicKey
+                });
+                
+                console.log("Sui signature verification result:", isValid);
+                return isValid;
+            } catch (verifyError) {
+                console.error("Sui verification error:", verifyError);
+                return false;
+            }
+        }
     } catch (error) {
-      console.error("Signature verification failed:", error);
-      return false;
+        console.error("Signature verification failed:", error);
+        return false;
     }
 }
 
@@ -78,6 +88,13 @@ router.post("/eth-to-sui", async (req, res) => {
 router.post("/sui-to-eth", async (req, res) => {
   try {
     const { senderSuiAddress, recipientEthAddress, amount, message, signature } = req.body;
+    console.log("Received SUI-to-ETH request:", {
+      senderSuiAddress,
+      recipientEthAddress,
+      amount,
+      message,
+      signature
+    });
 
     if (!senderSuiAddress || !recipientEthAddress || !amount || !message || !signature) {
       return res.status(400).json({ error: "Missing required fields" });
@@ -87,10 +104,14 @@ router.post("/sui-to-eth", async (req, res) => {
       senderSuiAddress,
       message,
       signature,
-      false // isEthereum
+      false
     );
 
     if (!isValid) {
+      console.error("Invalid signature details:", {
+        senderAddress: senderSuiAddress,
+        signature: signature
+      });
       return res.status(401).json({ error: "Invalid Sui signature" });
     }
 
@@ -113,4 +134,4 @@ router.post("/sui-to-eth", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

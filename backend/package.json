@@ -3,16 +3,18 @@
   "version": "1.0.0",
   "description": "bridge backend eth-sui",
   "main": "index.js",
+  "type": "module",
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@mysten/sui": "^1.20.0",
+    "@mysten/sui.js": "^0.50.1",
+    "ethers": "^6.11.1",
+    "express": "^4.18.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "ethers": "^6.13.5",
-    "express": "^4.21.2"
+    "dotenv": "^16.4.5"
   }
 }
