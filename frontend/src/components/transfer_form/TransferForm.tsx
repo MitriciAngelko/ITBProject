@@ -85,7 +85,6 @@ export default function TransferForm({ ethAddress, suiAddress,suiBalance, ethBal
         if (!currentAccount) throw new Error('Sui wallet not connected');
         
         const messageBytes = new TextEncoder().encode(message);
-        const messageB64 = toB64(messageBytes);
         
         const signatureResponse = await signPersonalMessage({
           message: messageBytes
@@ -96,15 +95,17 @@ export default function TransferForm({ ethAddress, suiAddress,suiBalance, ethBal
         }
         
         signature = {
-          message: messageB64,
+          message: toB64(messageBytes),
           signature: signatureResponse.signature,
           publicKey: currentAccount.publicKey
         };
         
-        console.log("Current account:", currentAccount);
-        console.log("Message to sign:", message);
-        console.log("Message bytes:", messageBytes);
-        console.log("Signature response:", signatureResponse);
+        console.log('Signature details:', {
+          message: message,
+          encodedMessage: toB64(messageBytes),
+          signature: signatureResponse.signature,
+          publicKey: currentAccount.publicKey
+        });
       } else {
         // sign with Ethereum
         const provider = new ethers.BrowserProvider((window as any).ethereum);

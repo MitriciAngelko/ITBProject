@@ -215,6 +215,9 @@ const ETHWallet = ({ onAddressChange, onBalanceChange}: ETHWalletProps) => {
   
           <div className="balance-display" style={{ display: 'flex', alignItems: 'center' }}>
             <span>BALANCE: {tokenBalance || '0.000'} MTR</span>
+            <button onClick={handleRefresh} style={{ marginLeft: '10px' }}>
+              Refresh
+            </button>
           </div>
         </>
       )}
